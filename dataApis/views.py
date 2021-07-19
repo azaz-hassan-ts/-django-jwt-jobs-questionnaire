@@ -16,7 +16,7 @@ from rest_framework.response import Response
 @api_view(["GET"])
 @permission_classes((AllowAny,))
 def jobs_view(request):
-    pass
+    jobs = Job.objects.all()
 
 
 @api_view(["GET"])
