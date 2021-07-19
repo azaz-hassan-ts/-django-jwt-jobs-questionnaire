@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "api",
+    "dataApis",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -108,8 +109,8 @@ WSGI_APPLICATION = "restJWTauth.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "jwtdb",
-        "USER": "jwtuser",
+        "NAME": "jwtdatadb",
+        "USER": "jwtdatauser",
         "PASSWORD": "123",
         "HOST": "localhost",
         "PORT": "",

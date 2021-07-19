@@ -1,9 +1,9 @@
 from django.db.models import fields
 from rest_framework import serializers
-from dataApis.models import Jobs
+from dataApis.models import Questionnaire
 
 
-class JobsSerializer(serializers.ModelSerializer):
+class QuestionnaireSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Jobs
+        model = Questionnaire
         fields = "__all__"
