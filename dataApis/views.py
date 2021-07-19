@@ -30,7 +30,7 @@ def questionnaire_details(request, id):
             status=status.HTTP_404_NOT_FOUND,
         )
     questions_serializer = QuestionnaireSerializer(questions)
-    return Response(questions_serializer.data)
+    return JsonResponse(questions_serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -38,4 +38,6 @@ def questionnaire_details(request, id):
 def questionnaire_list(request):
     questions = Questionnaire.objects.all()
     questions_serializer = QuestionnaireSerializer(questions, many=True)
-    return JsonResponse(questions_serializer.data, safe=False)
+    return JsonResponse(
+        questions_serializer.data, safe=False, status=status.HTTP_200_OK
+    )
