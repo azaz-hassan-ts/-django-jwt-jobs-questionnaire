@@ -41,24 +41,5 @@ class Job(models.Model):
     meta_updatedAt = models.DateTimeField(auto_now_add=True, blank=True)
     meta_owner = models.CharField(max_length=20)
 
-
-def convertToJson(object):
-    response = {}
-    response["id"] = object.id
-    response["title"] = object.title
-    response["technologies"] = object.technologies
-    response["description"] = object.description
-    response["salary"] = {"min": object.salary_min, "max": object.salary_max}
-    response["type"] = object.type
-    response["experience"] = {
-        "min": object.experience_min,
-        "max": object.experience_max,
-    }
-    response["category"] = object.category
-    response["active"] = object.active
-    response["metadata"] = {
-        "createdAt": object.meta_createdAt,
-        "updatedAt": object.meta_updatedAt,
-        "owner": object.meta_owner,
-    }
-    return response
+    def __str__(self):
+        return self.title
