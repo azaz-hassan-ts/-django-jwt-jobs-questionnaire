@@ -1,7 +1,7 @@
 from typing import Optional
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from rest_marshmallow import Schema, fields
+from django.db.models.fields import DateField
 
 # Create your models here.
 class Questionnaire(models.Model):
@@ -30,8 +30,35 @@ class Job(models.Model):
     title = models.TextField()
     technologies = ArrayField(models.CharField(max_length=15), blank=True, default=list)
     description = models.TextField()
-    salary = ArrayField(models.IntegerField(), size=2)
-    type = models.CharField(max_length=15)
-    experience = ArrayField(models.IntegerField(), size=2)
-    category = models.CharField(max_length=15)
-    active = models.BooleanField()
+    salary_min = models.IntegerField()
+    salary_max = models.IntegerField()
+    type = models.CharField(max_length=15, default="Full Time")
+    experience_min = models.IntegerField()
+    experience_max = models.IntegerField()
+    category = models.CharField(max_length=15, default="Development")
+    active = models.BooleanField(default=True)
+    meta_createdAt = models.DateTimeField(auto_now_add=True, editable=False)
+    meta_updatedAt = models.DateTimeField(auto_now_add=True, blank=True)
+    meta_owner = models.CharField(max_length=20)
+
+
+def convertToJson(object):
+    response = {}
+    response["id"] = object.id
+    response["title"] = object.title
+    response["technologies"] = object.technologies
+    response["description"] = object.description
+    response["salary"] = {"min": object.salary_min, "max": object.salary_max}
+    response["type"] = object.type
+    response["experience"] = {
+        "min": object.experience_min,
+        "max": object.experience_max,
+    }
+    response["category"] = object.category
+    response["active"] = object.active
+    response["metadata"] = {
+        "createdAt": object.meta_createdAt,
+        "updatedAt": object.meta_updatedAt,
+        "owner": object.meta_owner,
+    }
+    return response

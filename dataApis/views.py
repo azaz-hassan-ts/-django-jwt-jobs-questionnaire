@@ -6,7 +6,7 @@ from rest_framework.decorators import (
     permission_classes,
 )
 from rest_framework import status
-from dataApis.models import Questionnaire
+from dataApis.models import Questionnaire, Job, convertToJson
 from dataApis.serializers import QuestionnaireSerializer
 from rest_framework.response import Response
 
@@ -17,6 +17,11 @@ from rest_framework.response import Response
 @permission_classes((AllowAny,))
 def jobs_view(request):
     jobs = Job.objects.all()
+    my_response = []
+    for i in range(len(jobs)):
+        data = convertToJson[jobs[i]]
+        my_response.append(data)
+    return JsonResponse(my_response, safe=False)
 
 
 @api_view(["GET"])
