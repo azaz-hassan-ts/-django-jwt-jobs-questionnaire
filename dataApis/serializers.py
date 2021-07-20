@@ -12,4 +12,16 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
 class JobSerializer(serializers.ModelSerializer):
     class Meta:
         model = Job
-        fields = "__all__"
+        fields = (
+            "title",
+            "technologies",
+            "description",
+            "salary_min",
+            "salary_max",
+            "type",
+            "experience_min",
+            "experience_max",
+            "category",
+            "active",
+            "owner",
+        )

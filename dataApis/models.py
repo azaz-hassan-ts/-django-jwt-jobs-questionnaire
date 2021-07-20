@@ -39,7 +39,7 @@ class Job(models.Model):
     active = models.BooleanField(default=True)
     meta_createdAt = models.DateTimeField(auto_now_add=True, editable=False)
     meta_updatedAt = models.DateTimeField(auto_now_add=True, blank=True)
-    meta_owner = models.CharField(max_length=20)
+    owner = models.CharField(max_length=20)
 
     def __str__(self):
         return self.title

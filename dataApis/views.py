@@ -14,14 +14,25 @@ from rest_framework.parsers import JSONParser
 
 
 # Create your views here.
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes((AllowAny,))
 def jobs_view(request):
-    jobs = Job.objects.all()
-    my_response = []
-    for i in range(len(jobs)):
-        my_response.append(convertToJson(jobs[i]))
-    return JsonResponse(my_response, safe=False)
+    if request.method == "GET":
+        jobs = Job.objects.all()
+        my_response = []
+        for i in range(len(jobs)):
+            my_response.append(convertToJson(jobs[i]))
+        return JsonResponse(my_response, safe=False)
+
+    elif request.method == "POST":
+        try:
+            job_data = JSONParser().parse(request)
+        except:
+            return JsonResponse(
+                {"error": "Data format is not correct"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return JsonResponse(job_data)
 
 
 @api_view(["GET", "PUT", "DELETE"])
