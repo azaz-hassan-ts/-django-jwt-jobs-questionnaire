@@ -4,7 +4,11 @@ from rest_framework import status
 
 def convertToJson(object):
     response = {}
+    # try:
     response["id"] = object.id
+    # except:
+    #     print("No id exists")
+    # finally:
     response["title"] = object.title
     response["technologies"] = object.technologies
     response["description"] = object.description
@@ -17,9 +21,9 @@ def convertToJson(object):
     response["category"] = object.category
     response["active"] = object.active
     response["metadata"] = {
-        "createdAt": object.meta_createdAt,
-        "updatedAt": object.meta_updatedAt,
-        "owner": object.meta_owner,
+        "createdAt": object.createdAt,
+        "updatedAt": object.updatedAt,
+        "owner": object.owner,
     }
     return response
 
@@ -34,9 +38,3 @@ def isTypeValidityCheck(question_data):
         if question_data["options"] != []:
             return 2
     return 0
-
-
-def convertToJob(object):
-    response = {}
-
-    return response

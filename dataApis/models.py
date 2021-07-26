@@ -1,3 +1,4 @@
+from django.utils import timezone
 from typing import Optional
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
@@ -28,17 +29,17 @@ class Questionnaire(models.Model):
 
 class Job(models.Model):
     title = models.TextField()
-    technologies = ArrayField(models.CharField(max_length=15), blank=True, default=list)
+    technologies = ArrayField(models.CharField(max_length=15), default=list)
     description = models.TextField()
-    salary_min = models.IntegerField()
-    salary_max = models.IntegerField()
+    salary_min = models.IntegerField(default=70000)
+    salary_max = models.IntegerField(default=100000)
     type = models.CharField(max_length=15, default="Full Time")
-    experience_min = models.IntegerField()
-    experience_max = models.IntegerField()
+    experience_min = models.IntegerField(default=0)
+    experience_max = models.IntegerField(default=1)
     category = models.CharField(max_length=15, default="Development")
     active = models.BooleanField(default=True)
-    meta_createdAt = models.DateTimeField(auto_now_add=True, editable=False)
-    meta_updatedAt = models.DateTimeField(auto_now_add=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
     owner = models.CharField(max_length=20)
 
     def __str__(self):
