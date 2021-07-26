@@ -1,6 +1,6 @@
-# djangoauth-2.0-jwtauth
+# djangoauth-2.0-jwtauth-apis-jobs-questionnaire
 
-## Deployed at https://restjwtauth.herokuapp.com/
+## Deployed at https://dataapis.herokuapp.com/
 
 # Python: Getting Started
 
@@ -43,10 +43,22 @@ or
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
 
 
-## Swagger Documentation Hits
+## Swagger Documentation
 
+### Got to https://dataapis.herokuapp.com/ to see swagger spec document
+#### Note: JWT Bearer Auth is integrated in Swagger Spec document, Access Token expires after two minutes, Refresh token after a day
+#### API HIT CYCLE:
 
-### Got to https://restjwtauth.herokuapp.com/ to see swagger spec document
+```
+1. Create a register from swagger link
+2. Click on login and send required username and password, it will return a json web token
+3. Now Go on top and click on Authorize and add token in input field "bearer <access-token>" (without quotes)
+4. Now click on profile to view profile info
+5. Logout functionality will only blacklist the refresh token but it won't do anything to access token which means you can access certain resources till the access token expires
+```
+https://dataapis.herokuapp.com/dataapi
+
+### Got to https://dataapis.herokuapp.com/ to see swagger spec document
 #### Note: JWT Bearer Auth is integrated in Swagger Spec document, Access Token expires after two minutes, Refresh token after a day
 #### API HIT CYCLE:
 
