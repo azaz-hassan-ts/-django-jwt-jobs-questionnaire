@@ -1,12 +1,13 @@
 from django.utils import timezone
 from django.http.response import JsonResponse
 from django.shortcuts import render
+from django.views import generic
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import (
     api_view,
     permission_classes,
 )
-from rest_framework import status
+from rest_framework import status, generics
 from dataApis.models import Questionnaire, Job
 from dataApis.serializers import QuestionnaireSerializer, JobSerializer
 from rest_framework.response import Response
@@ -15,17 +16,23 @@ from rest_framework.parsers import JSONParser
 
 
 # Create your views here.
-@api_view(["GET", "POST"])
-@permission_classes((AllowAny,))
-def jobs_list(request):
-    if request.method == "GET":
+
+
+class Jobs_list(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return JobSerializer
+
+    def get(self, request, format=None):
         jobs = Job.objects.all()
         my_response = []
         for i in range(len(jobs)):
             my_response.append(convertToJson(jobs[i]))
         return JsonResponse(my_response, safe=False)
 
-    elif request.method == "POST":
+    def post(self, request, format=None):
         try:
             job_data = JSONParser().parse(request)
         except:
@@ -33,12 +40,10 @@ def jobs_list(request):
                 {"error": "Data format is not correct"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        job_serializer = JobSerializer(data=job_data)
+        job_serializer = self.get_serializer_class(data=job_data)
         if job_serializer.is_valid():
             job_serializer.save()
             job = convertToJson(Job.objects.last())
-            # created = job_serializer.data
-            # created["message"] = "Successfully Created"
             return Response(
                 job,
                 status=status.HTTP_201_CREATED,
@@ -50,47 +55,58 @@ def jobs_list(request):
         )
 
 
-@api_view(["GET", "PUT", "DELETE"])
-@permission_classes((AllowAny,))
-def jobs_details(request, id):
-    try:
-        job = Job.objects.get(id=id)
-    except Job.DoesNotExist:
-        return JsonResponse(
-            {"message": "This Job does not exist."},
-            status=status.HTTP_404_NOT_FOUND,
-        )
+class Jobs_details(generics.CreateAPIView):
+    http_method_names = ["get", "put", "delete"]
+    permission_classes = [AllowAny]
+    serializer_class = JobSerializer
 
-    if request.method == "GET":
+    def get_serializer_class(self):
+        if self.request.method == "PUT":
+            return JobSerializer
+
+    def get_job(self, id):
+        try:
+            job = Job.objects.get(id=id)
+        except Job.DoesNotExist:
+            return 1
+        return job
+
+    def get(self, request, id):
+        job = self.get_job(id)
+        if job == 1:
+            return JsonResponse(
+                {"message": "This Job does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         return JsonResponse(convertToJson(job), status=status.HTTP_200_OK)
 
-    elif request.method == "DELETE":
+    def delete(self, request, id):
+        job = self.get_job(id)
+        if job == 1:
+            return JsonResponse(
+                {"message": "This Job does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         job.delete()
         return JsonResponse(
             {"message": "Job was succesfully deleted."},
             status=status.HTTP_204_NO_CONTENT,
         )
 
-    elif request.method == "PUT":
+    def put(self, request, id):
         try:
             question_data = JSONParser().parse(request)
-            # if isTypeValidityCheck(question_data) == 1:
-            #     return JsonResponse(
-            #         {"message": "MCQ Options can't be empty"},
-            #         status=status.HTTP_400_BAD_REQUEST,
-            #     )
-            # elif isTypeValidityCheck(question_data) == 2:
-            #     return JsonResponse(
-            #         {"message": "Type other than mcq can't have options"},
-            #         status=status.HTTP_400_BAD_REQUEST,
-            #     )
-            # else:
-            #     pass
         except:
             return JsonResponse(
                 {"error": "Data couldn't be parsed"}, status=status.HTTP_400_BAD_REQUEST
             )
-        job_serializer = JobSerializer(job, data=question_data)
+        job = self.get_job(id)
+        if job == 1:
+            return JsonResponse(
+                {"message": "This Job does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        job_serializer = self.get_serializer_class(job, data=question_data)
         if job_serializer.is_valid():
             job_serializer.save()
             update = convertToJson(Job.objects.get(id=id))
@@ -102,29 +118,45 @@ def jobs_details(request, id):
         )
 
 
-@api_view(["GET", "PUT", "DELETE"])
-@permission_classes((AllowAny,))
-def questionnaire_details(request, id):
-    try:
-        question = Questionnaire.objects.get(id=id)
-    except Questionnaire.DoesNotExist:
-        return JsonResponse(
-            {"message": "The Question does not exist."},
-            status=status.HTTP_404_NOT_FOUND,
-        )
+class Questionnaire_details(generics.CreateAPIView):
+    http_method_names = ["get", "put", "delete"]
+    permission_classes = [AllowAny]
 
-    if request.method == "GET":
+    def get_serializer_class(self):
+        if self.request.method == "PUT":
+            return QuestionnaireSerializer
+
+    def get_question(self, id):
+        try:
+            question = Questionnaire.objects.get(id=id)
+        except Questionnaire.DoesNotExist:
+            return 1
+        return question
+
+    def get(self, request, id):
+        question = self.get_question(id)
+        if question == 1:
+            return JsonResponse(
+                {"message": "The Question does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         question_serializer = QuestionnaireSerializer(question)
         return JsonResponse(question_serializer.data, status=status.HTTP_200_OK)
 
-    elif request.method == "DELETE":
+    def delete(self, request, id):
+        question = self.get_question(id)
+        if question == 1:
+            return JsonResponse(
+                {"message": "The Question does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         question.delete()
         return JsonResponse(
             {"message": "Question was succesfully deleted."},
             status=status.HTTP_204_NO_CONTENT,
         )
 
-    elif request.method == "PUT":
+    def put(self, request, id):
         try:
             question_data = JSONParser().parse(request)
             if isTypeValidityCheck(question_data) == 1:
@@ -134,7 +166,17 @@ def questionnaire_details(request, id):
                 )
             elif isTypeValidityCheck(question_data) == 2:
                 return JsonResponse(
+                    {"message": "MCQ Options can't be less than 2."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            elif isTypeValidityCheck(question_data) == 3:
+                return JsonResponse(
                     {"message": "Type other than mcq can't have options"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            elif isTypeValidityCheck(question_data) == 4:
+                return JsonResponse(
+                    {"message": "MCQ Options can't be more than 4."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             else:
@@ -142,6 +184,12 @@ def questionnaire_details(request, id):
         except:
             return JsonResponse(
                 {"error": "Data couldn't be parsed"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        question = self.get_question(id)
+        if question == 1:
+            return JsonResponse(
+                {"message": "The Question does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
             )
         question_serializer = QuestionnaireSerializer(question, data=question_data)
         if question_serializer.is_valid():
@@ -155,16 +203,22 @@ def questionnaire_details(request, id):
         )
 
 
-@api_view(["GET", "POST"])
-@permission_classes((AllowAny,))
-def questionnaire_list(request):
-    if request.method == "GET":
+class Questionnaire_list(generics.CreateAPIView):
+    http_method_names = ["get", "post"]
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return QuestionnaireSerializer
+
+    def get(self, request):
         questions = Questionnaire.objects.all()
         questions_serializer = QuestionnaireSerializer(questions, many=True)
         return JsonResponse(
             questions_serializer.data, safe=False, status=status.HTTP_200_OK
         )
-    elif request.method == "POST":
+
+    def post(self, request):
         try:
             question_data = JSONParser().parse(request)
             if isTypeValidityCheck(question_data) == 1:
@@ -174,12 +228,17 @@ def questionnaire_list(request):
                 )
             elif isTypeValidityCheck(question_data) == 2:
                 return JsonResponse(
-                    {"message": "Type other than mcq can't have options"},
+                    {"message": "MCQ Options can't be less than 2."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             elif isTypeValidityCheck(question_data) == 3:
                 return JsonResponse(
-                    {"message": "mcq options should be equal to 4"},
+                    {"message": "Type other than mcq can't have options"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            elif isTypeValidityCheck(question_data) == 4:
+                return JsonResponse(
+                    {"message": "MCQ Options can't be more than 4."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             else:

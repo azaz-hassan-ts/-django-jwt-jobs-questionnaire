@@ -21,7 +21,11 @@ class Questionnaire(models.Model):
     score = models.IntegerField()
     weight = models.IntegerField()
     optional = models.BooleanField()
-    options = ArrayField(models.CharField(max_length=10), blank=True, default=list)
+    options = ArrayField(
+        models.CharField(max_length=10),
+        blank=True,
+        default=list,
+    )
 
     def __str__(self):
         return f"Title: {self.title}"
