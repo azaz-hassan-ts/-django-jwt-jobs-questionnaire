@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from dataApis.models import Questionnaire, Job
+from dataApis.models import Questionnaire, Job, Todo
 
 
 class QuestionnaireSerializer(serializers.ModelSerializer):
@@ -25,3 +25,9 @@ class JobSerializer(serializers.ModelSerializer):
             "active",
             "owner",
         )
+
+
+class TodoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Todo
+        fields = "__all__"

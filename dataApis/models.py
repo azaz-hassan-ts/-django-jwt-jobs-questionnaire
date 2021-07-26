@@ -48,3 +48,8 @@ class Job(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Todo(models.Model):
+    todo_data = models.TextField()
+    is_done = models.BooleanField()

@@ -8,8 +8,8 @@ from rest_framework.decorators import (
     permission_classes,
 )
 from rest_framework import status, generics
-from dataApis.models import Questionnaire, Job
-from dataApis.serializers import QuestionnaireSerializer, JobSerializer
+from dataApis.models import Questionnaire, Job, Todo
+from dataApis.serializers import QuestionnaireSerializer, JobSerializer, TodoSerializer
 from rest_framework.response import Response
 from .helperMethods import convertToJson, isTypeValidityCheck
 from rest_framework.parsers import JSONParser
@@ -262,5 +262,45 @@ class Questionnaire_list(generics.CreateAPIView):
 
         return JsonResponse(
             question_serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
+class Todo_list(generics.CreateAPIView):
+    http_method_names = ["get", "post"]
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return TodoSerializer
+
+    def get(self, request):
+        todos = Todo.objects.all()
+        todos_serializer = TodoSerializer(todos, many=True)
+        return JsonResponse(
+            todos_serializer.data, safe=False, status=status.HTTP_200_OK
+        )
+
+    def post(self, request):
+        try:
+            question_data = JSONParser().parse(request)
+        except:
+            return JsonResponse(
+                {"error": "Data format is not correct"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # question_serializer = QuestionnaireSerializer(data=question_data)
+        # if question_serializer.is_valid():
+        #     question_serializer.save()
+        #     created = question_serializer.data
+        #     created["message"] = "Successfully Created"
+        #     return Response(
+        #         created,
+        #         status=status.HTTP_201_CREATED,
+        #     )
+
+        return JsonResponse(
+            {"message": "POST is not designed yet"},
             status=status.HTTP_400_BAD_REQUEST,
         )
