@@ -40,7 +40,8 @@ class Jobs_list(generics.CreateAPIView):
                 {"error": "Data format is not correct"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        job_serializer = self.get_serializer_class(data=job_data)
+        job_serializer = self.get_serializer_class()
+        job_serializer = job_serializer(data=job_data)
         if job_serializer.is_valid():
             job_serializer.save()
             job = convertToJson(Job.objects.last())
@@ -95,7 +96,7 @@ class Jobs_details(generics.CreateAPIView):
 
     def put(self, request, id):
         try:
-            question_data = JSONParser().parse(request)
+            job_data = JSONParser().parse(request)
         except:
             return JsonResponse(
                 {"error": "Data couldn't be parsed"}, status=status.HTTP_400_BAD_REQUEST
@@ -106,7 +107,7 @@ class Jobs_details(generics.CreateAPIView):
                 {"message": "This Job does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        job_serializer = self.get_serializer_class(job, data=question_data)
+        job_serializer = JobSerializer(job, data=job_data)
         if job_serializer.is_valid():
             job_serializer.save()
             update = convertToJson(Job.objects.get(id=id))
