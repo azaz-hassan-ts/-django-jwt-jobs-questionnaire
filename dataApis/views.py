@@ -283,24 +283,94 @@ class Todo_list(generics.CreateAPIView):
 
     def post(self, request):
         try:
-            question_data = JSONParser().parse(request)
+            todo_data = JSONParser().parse(request)
         except:
             return JsonResponse(
                 {"error": "Data format is not correct"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        Todo.objects.all().delete()
+        invalid = []
+        for i in range(len(todo_data)):
+            todo_serializer = TodoSerializer(data=todo_data[i])
+            if todo_serializer.is_valid():
+                todo_serializer.save()
+                created = todo_serializer.data
+                created["message"] = "Successfully Created"
+            else:
+                invalid.append(todo_data[i])
 
-        # question_serializer = QuestionnaireSerializer(data=question_data)
-        # if question_serializer.is_valid():
-        #     question_serializer.save()
-        #     created = question_serializer.data
-        #     created["message"] = "Successfully Created"
-        #     return Response(
-        #         created,
-        #         status=status.HTTP_201_CREATED,
-        #     )
-
+        if invalid == []:
+            return JsonResponse(
+                {
+                    "message": "All Data is added succesfully",
+                },
+                status=status.HTTP_200_OK,
+            )
         return JsonResponse(
-            {"message": "POST is not designed yet"},
+            {"message": "Valid Data is added succesfully", "invalid_data": invalid},
+            status=status.HTTP_202_ACCEPTED,
+        )
+
+
+class Todo_details(generics.CreateAPIView):
+    http_method_names = ["get", "put", "delete"]
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.request.method == "PUT":
+            return TodoSerializer
+
+    def get_todo(self, id):
+        try:
+            todo = Todo.objects.get(id=id)
+        except Todo.DoesNotExist:
+            return 1
+        return todo
+
+    def get(self, request, id):
+        todo = self.get_todo(id)
+        if todo == 1:
+            return JsonResponse(
+                {"message": "The task does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        todo_serializer = TodoSerializer(todo)
+        return JsonResponse(todo_serializer.data, status=status.HTTP_200_OK)
+
+    def delete(self, request, id):
+        todo = self.get_todo(id)
+        if todo == 1:
+            return JsonResponse(
+                {"message": "The task does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        todo.delete()
+        return JsonResponse(
+            {"message": "Task was succesfully deleted."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
+    def put(self, request, id):
+        try:
+            todo_data = JSONParser().parse(request)
+        except:
+            return JsonResponse(
+                {"error": "Data couldn't be parsed"}, status=status.HTTP_400_BAD_REQUEST
+            )
+        todo = self.get_todo(id)
+        if todo == 1:
+            return JsonResponse(
+                {"message": "The task does not exist."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        todo_serializer = TodoSerializer(todo, data=todo_data)
+        if todo_serializer.is_valid():
+            todo_serializer.save()
+            update = todo_serializer.data
+            update["message"] = "Successfully Updated"
+            return JsonResponse(update, status=status.HTTP_200_OK)
+        return JsonResponse(
+            todo_serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
         )

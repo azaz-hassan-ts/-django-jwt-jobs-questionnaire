@@ -36,4 +36,6 @@ urlpatterns = [
     path(
         "questionnaire/", views.Questionnaire_list.as_view(), name="questionnaire_list"
     ),
+    path("todo/", views.Todo_list.as_view(), name="todo_list"),
+    path("todo/<int:id>", views.Todo_details.as_view(), name="todo_details"),
 ]
