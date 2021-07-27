@@ -1,6 +1,7 @@
 from django.db.models import fields
 from rest_framework import serializers
 from dataApis.models import Questionnaire, Job, Todo
+from django.contrib.postgres.fields import ArrayField
 
 
 class QuestionnaireSerializer(serializers.ModelSerializer):

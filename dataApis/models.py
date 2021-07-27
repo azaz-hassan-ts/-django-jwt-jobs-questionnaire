@@ -33,14 +33,14 @@ class Questionnaire(models.Model):
 
 class Job(models.Model):
     title = models.TextField()
-    technologies = ArrayField(models.CharField(max_length=15), default=list)
+    technologies = ArrayField(models.CharField(max_length=50), default=list)
     description = models.TextField()
     salary_min = models.IntegerField(default=70000)
     salary_max = models.IntegerField(default=100000)
-    type = models.CharField(max_length=15, default="Full Time")
+    type = models.CharField(max_length=50, default="Full Time")
     experience_min = models.IntegerField(default=0)
     experience_max = models.IntegerField(default=1)
-    category = models.CharField(max_length=15, default="Development")
+    category = models.CharField(max_length=50, default="Development")
     active = models.BooleanField(default=True)
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
@@ -53,3 +53,6 @@ class Job(models.Model):
 class Todo(models.Model):
     todo_data = models.TextField()
     is_done = models.BooleanField()
+
+    def __str__(self):
+        return self.todo_data
