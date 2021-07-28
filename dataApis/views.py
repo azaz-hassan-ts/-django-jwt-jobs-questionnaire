@@ -215,7 +215,7 @@ class Questionnaire_list(generics.CreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == "POST":
-            return QuestionnaireSerializer
+            return FormSerializer
 
     def get(self, request):
         forms = Form.objects.all()
