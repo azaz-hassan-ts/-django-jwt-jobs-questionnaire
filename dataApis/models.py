@@ -36,7 +36,7 @@ class Questionnaire(models.Model):
         blank=True,
         default=list,
     )
-    form = models.ForeignKey(Form, related_name="questions")
+    form = models.ForeignKey(Form, on_delete=models.CASCADE, related_name="questions")
 
     def __str__(self):
         return f"Title: {self.title}"
