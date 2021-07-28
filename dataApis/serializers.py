@@ -7,15 +7,22 @@ from django.contrib.postgres.fields import ArrayField
 class QuestionnaireSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questionnaire
-        fields = "__all__"
+        fields = ["title", "type", "score", "weight", "optional", "options"]
 
 
 class FormSerializer(serializers.ModelSerializer):
-    questionnaire = QuestionnaireSerializer(many=True)
+    questions = QuestionnaireSerializer(many=True)
 
     class Meta:
         model = Form
-        fields = ["title", "description", "questionnaire"]
+        fields = ["title", "description", "questions"]
+
+    def create(self, validated_data):
+        questions_data = validated_data.pop("questions")
+        form = Form.objects.create(**validated_data)
+        for question_data in questions_data:
+            Questionnaire.objects.create(form=form, **question_data)
+        return form
 
 
 class JobSerializer(serializers.ModelSerializer):

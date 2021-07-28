@@ -8,8 +8,13 @@ from rest_framework.decorators import (
     permission_classes,
 )
 from rest_framework import status, generics
-from dataApis.models import Questionnaire, Job, Todo
-from dataApis.serializers import QuestionnaireSerializer, JobSerializer, TodoSerializer
+from dataApis.models import Questionnaire, Job, Todo, Form
+from dataApis.serializers import (
+    QuestionnaireSerializer,
+    JobSerializer,
+    TodoSerializer,
+    FormSerializer,
+)
 from rest_framework.response import Response
 from .helperMethods import convertToJson, isTypeValidityCheck
 from rest_framework.parsers import JSONParser
@@ -213,31 +218,49 @@ class Questionnaire_list(generics.CreateAPIView):
             return QuestionnaireSerializer
 
     def get(self, request):
-        questions = Questionnaire.objects.all()
-        questions_serializer = QuestionnaireSerializer(questions, many=True)
-        return JsonResponse(
-            questions_serializer.data, safe=False, status=status.HTTP_200_OK
-        )
+        forms = Form.objects.all()
+        result = [
+            {
+                "id": form.id,
+                "title": form.title,
+                "description": form.description,
+                "questions": [
+                    {
+                        "id": question.id,
+                        "title": question.title,
+                        "type": question.type,
+                        "score": question.score,
+                        "weight": question.weight,
+                        "optional": question.optional,
+                        "options": question.options,
+                    }
+                    for question in form.questions.all()
+                ],
+            }
+            for form in forms
+        ]
+        return JsonResponse(result, safe=False, status=status.HTTP_200_OK)
 
     def post(self, request):
         try:
-            question_data = JSONParser().parse(request)
-            if isTypeValidityCheck(question_data) == 1:
+            form_data = JSONParser().parse(request)
+            data = form_data["questions"]
+            if isTypeValidityCheck(data) == 1:
                 return JsonResponse(
                     {"message": "MCQ Options can't be empty"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif isTypeValidityCheck(question_data) == 2:
+            elif isTypeValidityCheck(data) == 2:
                 return JsonResponse(
                     {"message": "MCQ Options can't be less than 2."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif isTypeValidityCheck(question_data) == 3:
+            elif isTypeValidityCheck(data) == 3:
                 return JsonResponse(
                     {"message": "Type other than mcq can't have options"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif isTypeValidityCheck(question_data) == 4:
+            elif isTypeValidityCheck(data) == 4:
                 return JsonResponse(
                     {"message": "MCQ Options can't be more than 4."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -250,10 +273,10 @@ class Questionnaire_list(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        question_serializer = QuestionnaireSerializer(data=question_data)
-        if question_serializer.is_valid():
-            question_serializer.save()
-            created = question_serializer.data
+        form_serializer = FormSerializer(data=form_data)
+        if form_serializer.is_valid():
+            form_serializer.save()
+            created = form_serializer.data
             created["message"] = "Successfully Created"
             return Response(
                 created,
@@ -261,7 +284,7 @@ class Questionnaire_list(generics.CreateAPIView):
             )
 
         return JsonResponse(
-            question_serializer.errors,
+            form_serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
         )
 

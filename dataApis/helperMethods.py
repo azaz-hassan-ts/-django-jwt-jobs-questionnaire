@@ -29,14 +29,15 @@ def convertToJson(object):
 
 
 def isTypeValidityCheck(question_data):
-    if question_data["type"] == "mcq":
-        if question_data["options"] == []:
-            return 1
-        elif len(question_data["options"]) < 2:
-            return 2
-        elif len(question_data["options"]) > 4:
-            return 4
-    else:
-        if question_data["options"] != []:
-            return 3
+    for question in question_data:
+        if question["type"] == "mcq":
+            if question["options"] == []:
+                return 1
+            elif len(question["options"]) < 2:
+                return 2
+            elif len(question["options"]) > 4:
+                return 4
+        else:
+            if question["options"] != []:
+                return 3
     return 0
