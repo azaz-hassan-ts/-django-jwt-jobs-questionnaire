@@ -33,7 +33,7 @@ class Questionnaire(models.Model):
 
 class Job(models.Model):
     title = models.TextField()
-    technologies = ArrayField(models.CharField(max_length=50), default=list)
+    technologies = ArrayField(models.CharField(max_length=50), default=list, blank=True)
     description = models.TextField()
     salary_min = models.IntegerField(default=70000)
     salary_max = models.IntegerField(default=100000)
