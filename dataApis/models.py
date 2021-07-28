@@ -5,6 +5,16 @@ from django.contrib.postgres.fields import ArrayField
 from django.db.models.fields import DateField
 
 # Create your models here.
+
+
+class Form(models.Model):
+    title = models.CharField(max_length=64)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+
 class Questionnaire(models.Model):
     TYPE_CHOICES = [
         ("mcq", "Multiple Choice Question"),
@@ -26,6 +36,7 @@ class Questionnaire(models.Model):
         blank=True,
         default=list,
     )
+    form = models.ForeignKey(Form, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Title: {self.title}"

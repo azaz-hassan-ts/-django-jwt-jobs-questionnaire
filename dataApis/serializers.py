@@ -1,6 +1,6 @@
 from django.db.models import fields
 from rest_framework import serializers
-from dataApis.models import Questionnaire, Job, Todo
+from dataApis.models import Questionnaire, Job, Todo, Form
 from django.contrib.postgres.fields import ArrayField
 
 
@@ -8,6 +8,14 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     class Meta:
         model = Questionnaire
         fields = "__all__"
+
+
+class FormSerializer(serializers.ModelSerializer):
+    questionnaire = QuestionnaireSerializer(many=True)
+
+    class Meta:
+        model = Form
+        fields = ["title", "description", "questionnaire"]
 
 
 class JobSerializer(serializers.ModelSerializer):
