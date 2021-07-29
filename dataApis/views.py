@@ -10,7 +10,6 @@ from rest_framework.decorators import (
 from rest_framework import status, generics
 from dataApis.models import Questionnaire, Job, Todo, Form
 from dataApis.serializers import (
-    QuestionnaireSerializer,
     JobSerializer,
     TodoSerializer,
     FormSerializer,
@@ -130,57 +129,74 @@ class Questionnaire_details(generics.CreateAPIView):
 
     def get_serializer_class(self):
         if self.request.method == "PUT":
-            return QuestionnaireSerializer
+            return FormSerializer
 
-    def get_question(self, id):
+    def get_form(self, id):
         try:
-            question = Questionnaire.objects.get(id=id)
-        except Questionnaire.DoesNotExist:
+            form = Form.objects.get(id=id)
+        except Form.DoesNotExist:
             return 1
-        return question
+        return form
 
     def get(self, request, id):
-        question = self.get_question(id)
-        if question == 1:
+        form = self.get_form(id)
+        if form == 1:
             return JsonResponse(
-                {"message": "The Question does not exist."},
+                {"message": "The Form does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        question_serializer = QuestionnaireSerializer(question)
-        return JsonResponse(question_serializer.data, status=status.HTTP_200_OK)
+        result = {
+            "id": form.id,
+            "title": form.title,
+            "description": form.description,
+            "questions": [
+                {
+                    "id": question.id,
+                    "title": question.title,
+                    "type": question.type,
+                    "score": question.score,
+                    "weight": question.weight,
+                    "optional": question.optional,
+                    "options": question.options,
+                }
+                for question in form.questions.all()
+            ],
+        }
+        return JsonResponse(result, safe=False, status=status.HTTP_200_OK)
 
     def delete(self, request, id):
-        question = self.get_question(id)
-        if question == 1:
+        form = self.get_form(id)
+        if form == 1:
             return JsonResponse(
-                {"message": "The Question does not exist."},
+                {"message": "The Form does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        question.delete()
+        form.delete()
         return JsonResponse(
-            {"message": "Question was succesfully deleted."},
+            {"message": "Form was succesfully deleted."},
             status=status.HTTP_204_NO_CONTENT,
         )
 
     def put(self, request, id):
         try:
-            question_data = JSONParser().parse(request)
-            if isTypeValidityCheck(question_data) == 1:
+            form_data = JSONParser().parse(request)
+            data = form_data["questions"]
+            if isTypeValidityCheck(data) == 1:
                 return JsonResponse(
                     {"message": "MCQ Options can't be empty"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif isTypeValidityCheck(question_data) == 2:
+            elif isTypeValidityCheck(data) == 2:
                 return JsonResponse(
                     {"message": "MCQ Options can't be less than 2."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif isTypeValidityCheck(question_data) == 3:
+            elif isTypeValidityCheck(data) == 3:
                 return JsonResponse(
                     {"message": "Type other than mcq can't have options"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-            elif isTypeValidityCheck(question_data) == 4:
+            elif isTypeValidityCheck(data) == 4:
                 return JsonResponse(
                     {"message": "MCQ Options can't be more than 4."},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -191,20 +207,20 @@ class Questionnaire_details(generics.CreateAPIView):
             return JsonResponse(
                 {"error": "Data couldn't be parsed"}, status=status.HTTP_400_BAD_REQUEST
             )
-        question = self.get_question(id)
-        if question == 1:
+        form = self.get_form(id)
+        if form == 1:
             return JsonResponse(
-                {"message": "The Question does not exist."},
+                {"message": "The Form does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        question_serializer = QuestionnaireSerializer(question, data=question_data)
-        if question_serializer.is_valid():
-            question_serializer.save()
-            update = question_serializer.data
+        form_serializer = FormSerializer(form, data=form_data)
+        if form_serializer.is_valid():
+            form_serializer.save()
+            update = form_serializer.data
             update["message"] = "Successfully Updated"
             return JsonResponse(update, status=status.HTTP_200_OK)
         return JsonResponse(
-            question_serializer.errors,
+            form_serializer.errors,
             status=status.HTTP_400_BAD_REQUEST,
         )
 
