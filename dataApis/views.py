@@ -332,13 +332,8 @@ class Todo_list(generics.CreateAPIView):
             todo_serializer = TodoSerializer(data=todo_data)
             if todo_serializer.is_valid():
                 todo_serializer.save()
-                created = todo_serializer.data
-                created["message"] = "Successfully Created"
-        
                 return JsonResponse(
-                    {
-                        "message": "All Data is added succesfully",
-                    },
+                    todo_serializer.data,
                     status=status.HTTP_200_OK,
                     )
             return JsonResponse(
