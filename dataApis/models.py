@@ -62,8 +62,8 @@ class Job(models.Model):
 
 
 class Todo(models.Model):
-    todo_data = models.TextField()
-    is_done = models.BooleanField()
+    title = models.TextField(default="halo")
+    note = models.TextField(default="nakaroyaar")
 
     def __str__(self):
         return self.todo_data

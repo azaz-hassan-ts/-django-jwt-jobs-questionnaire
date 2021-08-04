@@ -328,28 +328,28 @@ class Todo_list(generics.CreateAPIView):
                 {"error": "Data format is not correct"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        Todo.objects.all().delete()
-        invalid = []
-        for i in range(len(todo_data)):
-            todo_serializer = TodoSerializer(data=todo_data[i])
+        try:
+            todo_serializer = TodoSerializer(data=todo_data)
             if todo_serializer.is_valid():
                 todo_serializer.save()
                 created = todo_serializer.data
                 created["message"] = "Successfully Created"
-            else:
-                invalid.append(todo_data[i])
-
-        if invalid == []:
+        
+                return JsonResponse(
+                    {
+                        "message": "All Data is added succesfully",
+                    },
+                    status=status.HTTP_200_OK,
+                    )
             return JsonResponse(
-                {
-                    "message": "All Data is added succesfully",
-                },
-                status=status.HTTP_200_OK,
+            todo_serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
             )
-        return JsonResponse(
-            {"message": "Valid Data is added succesfully", "invalid_data": invalid},
-            status=status.HTTP_202_ACCEPTED,
-        )
+        except:
+            return JsonResponse(
+            {"message": "Invalid Data is sent"},
+            status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class Todo_details(generics.CreateAPIView):
