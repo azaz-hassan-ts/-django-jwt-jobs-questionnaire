@@ -66,4 +66,4 @@ class Todo(models.Model):
     note = models.TextField(default="nakaroyaar")
 
     def __str__(self):
-        return self.todo_data
+        return self.note
