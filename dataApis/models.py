@@ -64,6 +64,7 @@ class Job(models.Model):
 class Todo(models.Model):
     title = models.TextField(default="halo")
     note = models.TextField(default="nakaroyaar")
+    isDeleted = models.BooleanField(default=False)
 
     def __str__(self):
         return self.note
